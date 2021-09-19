@@ -43,9 +43,9 @@ def etl():
     regions_name = get_region_from_file()
     print(regions_name)
     instances_list = get_instances(regions_name)
-    sorted_instances_list = instances_list.sort(key=lambda x: datetime_converter(x['launch_time']))
+    instances_list.sort(key=lambda x: datetime_converter(x['launch_time']))
     with open(regions_name + '.json', 'w+') as f:
-        json.dump(sorted_instances_list, f)
+        json.dump(instances_list, f)
 
 
 @app.route(BASE_ROUTE, methods=['GET'])
@@ -56,7 +56,9 @@ def lambda_handler(event, context):
             region = request.args.get('region')
             config_region(region)
             etl()
-            return jsonify()
+            f = open(region+'json','r')
+            data = json.load(f)
+            return jsonify(data)
         else:
             abort(404, "the request should contain the region param")
 
